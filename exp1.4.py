@@ -1,0 +1,67 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from datetime import datetime
+print("S.RESHMA 24BAD097")
+file_path = r"C:\Users\ASUS\Downloads\exp1.4\marketing_campaign.csv"
+df = pd.read_csv(file_path, sep="\t")
+print("\nDataset loaded successfully!")
+print("\n----- COLUMNS -----")
+print(df.columns)
+print("\n----- HEAD -----")
+print(df.head())
+print("\n----- INFO -----")
+df.info()
+print("\n----- DESCRIBE -----")
+print(df.describe())
+print("\n----- MISSING VALUES -----")
+print(df.isnull().sum())
+current_year = datetime.now().year
+df["Age"] = current_year - df["Year_Birth"]
+df = df[(df["Age"] > 0) & (df["Age"] < 100)]
+df["Dt_Customer"] = pd.to_datetime(df["Dt_Customer"], errors="coerce")
+#  AGE DISTRIBUTION (BAR)
+age_counts = df["Age"].value_counts().sort_index()
+plt.figure()
+plt.bar(age_counts.index, age_counts.values)
+plt.title("Age Distribution of Customers")
+plt.xlabel("Age")
+plt.ylabel("Number of Customers")
+plt.tight_layout()
+plt.show()
+#  INCOME DISTRIBUTION (BOX)
+plt.figure()
+plt.boxplot(df["Income"].dropna())
+plt.title("Income Distribution (Box Plot)")
+plt.ylabel("Income")
+plt.tight_layout()
+plt.show()
+#  TOTAL SPENDING
+df["Total_Spending"] = (
+    df["MntWines"] + df["MntFruits"] + df["MntMeatProducts"] +
+    df["MntFishProducts"] + df["MntSweetProducts"] + df["MntGoldProds"]
+)
+#  SPENDING BY EDUCATION (BAR)
+avg_spend_edu = df.groupby("Education")["Total_Spending"].mean().sort_values(ascending=False)
+plt.figure()
+avg_spend_edu.plot(kind="bar")
+plt.title("Average Spending by Education Level")
+plt.xlabel("Education")
+plt.ylabel("Average Total Spending")
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+#  TOTAL SPENDING (BOX)
+plt.figure()
+plt.boxplot(df["Total_Spending"].dropna())
+plt.title("Total Spending Distribution (Box Plot)")
+plt.ylabel("Total Spending")
+plt.tight_layout()
+plt.show()
+#  SUMMARY INSIGHTS
+print("\n----- SUMMARY INSIGHTS -----")
+print("Average Age:", round(df["Age"].mean(), 2))
+print("Average Income:", round(df["Income"].mean(), 2))
+print("Average Total Spending:", round(df["Total_Spending"].mean(), 2))
+print("\nTop 5 Education levels by Average Spending:")
+print(avg_spend_edu.head())
+print("\nAnalysis completed successfully!")
